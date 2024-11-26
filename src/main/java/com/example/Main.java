@@ -39,21 +39,22 @@ public class Main {
                 }
             } 
             boolean isRunning = true;
+            System.out.println("Digita '1' per andare in chat PRIVATA, '2' per quella PUBBLICA e '3' per DISCONNETTERTI");
+            System.out.flush();
             while (isRunning) {
                 
           
-                System.out.println("Digita '1' per andare in chat PRIVATA, '2' per quella PUBBLICA e '3' per DISCONNETTERTI");
                 String scelta = scan.nextLine();
                 out.write(scelta);
                 out.newLine();
                 out.flush();
     
                 String bb = in.readLine();
-    
                 switch (bb) {
                     case "PRIV":
                         // Gestione chat privata
                         System.out.println("Digita username con cui vuoi parlare:");
+                        System.out.flush();
                         String dst = scan.nextLine();
                         out.write(dst);
                         out.newLine();
@@ -62,6 +63,7 @@ public class Main {
                         String risposta = in.readLine();
                         if (risposta.equals("ok")) {
                             System.out.println("Ti sei connesso con: " + dst);
+                            System.out.flush();
                             a.start(); // Avvia il thread di ascolto
     
                             boolean isChatPr = true;
@@ -71,9 +73,10 @@ public class Main {
                                     out.write(messaggio);
                                     out.newLine();
                                     out.flush();
-                                     // Interrompe il thread di ascolto
+                                    a.interrupt(); // Assicurati che il thread venga interrotto
                                     isChatPr = false;
                                     System.out.println("Sei tornato al menu principale.");
+                                    System.out.flush();
                                     break;
                                 } else {
                                     out.write(messaggio);
@@ -82,15 +85,18 @@ public class Main {
                                 }
                             }
                         } else {
-                            System.out.println("Utente non trovato!");
+                            System.out.println("Utente non trovato!,Riprova");
+                            System.out.flush();
                         }
                         break;
     
                     case "PUBBL":
                         // Gestione chat pubblica
-                        a.start();
+                        Ascolto ascolto = new Ascolto(s);
+                        ascolto.start();
                         boolean isChat = true;
                         System.out.println("Benvenuto " + username + " nella chat globale");
+                        System.out.flush();
                         while (isChat) {
                             String messaggio = scan.nextLine();
                             if (messaggio.equals("/QUIT")) {
@@ -100,6 +106,7 @@ public class Main {
                                  // Interrompe il thread di ascolto
                                 isChat = false;
                                 System.out.println("Sei tornato al menu principale.");
+                                System.out.flush();
                                 break;
                             } else {
                                 out.write(messaggio);
@@ -107,11 +114,10 @@ public class Main {
                                 out.flush();
                             }
                         }
-                        a.interrupt();
+                        ascolto.interrupt();
                         break;
     
                     case "EXIT":
-                        System.out.println("Disconnessione...");
                         s.close();
                         isRunning = false;  // Esci dal ciclo principale
                         break;
