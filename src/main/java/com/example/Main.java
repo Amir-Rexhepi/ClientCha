@@ -56,22 +56,24 @@ public class Main {
             String bb = in.readLine();
 
             switch (bb) {
-            
                 case "PRIV":
 
                     break;
-
+                //chat pubblica
                 case "PUBBL":
-                System.out.println("Benvenuto " + username + " nella chat globale");
                 Ascolto a = new Ascolto(s);
                 a.start();
-                    while (true) {
+                boolean isChat = true;
+                System.out.println("Benvenuto " + username + " nella chat globale");
+                    while (isChat) {
 
                         String messaggio = scan.nextLine();
                         if (messaggio.equals("/QUIT")) {
+                            out.write(messaggio);
+                            out.newLine();
+                            out.flush();
                             a.interrupt();
-                         
-                            //da sistemare 
+                            isChat = false; 
                             break;
                         } else {
                             out.write(messaggio);
@@ -80,8 +82,9 @@ public class Main {
                         }
                     }
                     break;
+                    //disconessione dal programma;
                 case "EXIT":
-                System.out.println("Ti sei disconnesso");
+                System.out.println("disconessione...");
                   s.close();
                     break;
             }
