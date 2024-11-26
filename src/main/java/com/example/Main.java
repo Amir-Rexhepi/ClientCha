@@ -2,13 +2,11 @@ package com.example;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.Buffer;
 import java.util.Scanner;
 
 public class Main {
@@ -19,6 +17,7 @@ public class Main {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
         Scanner scan = new Scanner(System.in);
         String username;
+        Ascolto a = new Ascolto(s);
 
         
             System.out.println("Ti sei connesso ad un server...");
@@ -39,57 +38,85 @@ public class Main {
                     break;
                 }
             } 
-        do {
-         //    if (risposta.equals("NO")) {
-           //  System.out.println("Username già esistente, Riprova");
-            // }
-            // else{
-            System.out.println("Digita '1' per andare in chat PRIVATA, '2' per quella PUBBLICA e '3' per DISCONNETTERTI");
-             //break;
-            // }
-            // }while (true);
-            String scelta = scan.nextLine();
-            out.write(scelta);
-            out.newLine();
-            out.flush();
-
-            String bb = in.readLine();
-
-            switch (bb) {
-                case "PRIV":
-
-                    break;
-                //chat pubblica
-                case "PUBBL":
-                Ascolto a = new Ascolto(s);
-                a.start();
-                boolean isChat = true;
-                System.out.println("Benvenuto " + username + " nella chat globale");
-                    while (isChat) {
-
-                        String messaggio = scan.nextLine();
-                        if (messaggio.equals("/QUIT")) {
-                            out.write(messaggio);
-                            out.newLine();
-                            out.flush();
-                            a.interrupt();
-                            isChat = false; 
-                            break;
+            boolean isRunning = true;
+            while (isRunning) {
+                
+          
+                System.out.println("Digita '1' per andare in chat PRIVATA, '2' per quella PUBBLICA e '3' per DISCONNETTERTI");
+                String scelta = scan.nextLine();
+                out.write(scelta);
+                out.newLine();
+                out.flush();
+    
+                String bb = in.readLine();
+    
+                switch (bb) {
+                    case "PRIV":
+                        // Gestione chat privata
+                        System.out.println("Digita username con cui vuoi parlare:");
+                        String dst = scan.nextLine();
+                        out.write(dst);
+                        out.newLine();
+                        out.flush();
+    
+                        String risposta = in.readLine();
+                        if (risposta.equals("ok")) {
+                            System.out.println("Ti sei connesso con: " + dst);
+                            a.start(); // Avvia il thread di ascolto
+    
+                            boolean isChatPr = true;
+                            while (isChatPr) {
+                                String messaggio = scan.nextLine();
+                                if (messaggio.equals("/QUIT")) {
+                                    out.write(messaggio);
+                                    out.newLine();
+                                    out.flush();
+                                     // Interrompe il thread di ascolto
+                                    isChatPr = false;
+                                    System.out.println("Sei tornato al menu principale.");
+                                    break;
+                                } else {
+                                    out.write(messaggio);
+                                    out.newLine();
+                                    out.flush();
+                                }
+                            }
                         } else {
-                            out.write(messaggio);
-                            out.newLine();
-                            out.flush();
+                            System.out.println("Utente non trovato!");
                         }
-                    }
-                    break;
-                    //disconessione dal programma;
-                case "EXIT":
-                System.out.println("disconessione...");
-                  s.close();
-                    break;
-            }
-
-        } while (true);
-
+                        break;
+    
+                    case "PUBBL":
+                        // Gestione chat pubblica
+                        a.start();
+                        boolean isChat = true;
+                        System.out.println("Benvenuto " + username + " nella chat globale");
+                        while (isChat) {
+                            String messaggio = scan.nextLine();
+                            if (messaggio.equals("/QUIT")) {
+                                out.write(messaggio);
+                                out.newLine();
+                                out.flush();
+                                 // Interrompe il thread di ascolto
+                                isChat = false;
+                                System.out.println("Sei tornato al menu principale.");
+                                break;
+                            } else {
+                                out.write(messaggio);
+                                out.newLine();
+                                out.flush();
+                            }
+                        }
+                        a.interrupt();
+                        break;
+    
+                    case "EXIT":
+                        System.out.println("Disconnessione...");
+                        s.close();
+                        isRunning = false;  // Esci dal ciclo principale
+                        break;
+                }
+    
+            };
     }
 }
